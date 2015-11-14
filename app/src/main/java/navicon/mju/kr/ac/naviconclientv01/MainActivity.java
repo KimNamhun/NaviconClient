@@ -3,7 +3,6 @@ package navicon.mju.kr.ac.naviconclientv01;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -15,13 +14,16 @@ import com.wizturn.sdk.peripheral.PeripheralScanListener;
 
 import navicon.mju.kr.ac.naviconclientv01.beacons.MapBeacon;
 import navicon.mju.kr.ac.naviconclientv01.constants.Constants;
-import navicon.mju.kr.ac.naviconclientv01.servercommunication.ServerMapJSONSearch;
 
+/*
 
+MainActivity 주로 비콘의 신호를 다루는 API관련 코드이다.
+
+Author : KimNamhun
+ */
 public class MainActivity extends Activity {
 
     private CentralManager centralManager; // 비콘 매니저
-    private ServerMapJSONSearch serverHttpManager; // 서버 통신
     private MapBeacon mapBeacon; // 맵 비콘 관리자
 
     private ImageView mapView; // 지도 view
@@ -29,22 +31,15 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getView(); // xml view 객체 인식
-        initServerConnection(); // server 연결 초기화
+
         init(); // 비콘 탐지 구동을 위한 초기 셋팅
         start(); // 비콘 탐지 구동
 
         setContentView(R.layout.activity_main);
+        getView(); // xml view 객체 인식
 
     }
 
-    private void getView() {
-        mapView = (ImageView)findViewById(R.id.mapView);
-    }
-
-    private void initServerConnection() { // 서버 연결 객체 생성
-        serverHttpManager = new ServerMapJSONSearch(mapView);
-    }
 
     private void init() { // 비콘 탐지 구동을 위한 초기 셋팅
         setCentralManager(); // 비콘 탐지를 위한 매니저 셋팅 메소드
@@ -70,11 +65,13 @@ public class MainActivity extends Activity {
     }
 
     private void findShortestBeacon(Peripheral peripheral, MapBeacon mapBeacon) {
+
         if (peripheral.getDistance() < Constants.SHORTEST_BEACON_DISTANCE) { // 지정한 거리내에 들어오는 비콘을 최단거리 비콘 major(위치번호)로 설정한다
             if (mapBeacon.getShortestBeacon() != peripheral.getMajor()) { // 현재 위치의 지도와 새로 만난 지도가 다르면 지도를 갱신한다.
                     mapBeacon.setShortestBeacon(peripheral.getMajor());
-                    Bitmap bitmap = serverHttpManager.doInBackground(Constants.SERVER_URL + Constants.SERVER_MAPDATA_URL + mapBeacon.getShortestBeacon());
-                    serverHttpManager.onPostExecute(bitmap);
+                    ServerMapJSONSearch serverHttpManager = new ServerMapJSONSearch(mapView,Constants.SERVER_URL + Constants.SERVER_MAPDATA_URL + mapBeacon.getShortestBeacon());
+
+                    serverHttpManager.execute();
             }
         }
     }
@@ -96,6 +93,11 @@ public class MainActivity extends Activity {
     private void start() {
         centralManager.startScanning(); // 비콘 탐지 구동
     }
+
+    private void getView() {
+        mapView = (ImageView)findViewById(R.id.mapView);
+    }
+
 
 
 

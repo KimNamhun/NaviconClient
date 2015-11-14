@@ -1,4 +1,4 @@
-package navicon.mju.kr.ac.naviconclientv01.servercommunication;
+package navicon.mju.kr.ac.naviconclientv01;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,20 +19,24 @@ import navicon.mju.kr.ac.naviconclientv01.functions.JSONParser;
 
 /**
  * Created by KimNamhun on 15. 11. 12..
+ * 서버에서 Json객체를 얻어오고 화면에 지도를 갱신하는 백그라운드 AsyncTask이다.
  */
-public class ServerMapJSONSearch extends AsyncTask<String, String, Bitmap> {
-    private ImageView mapImgView; // 지도 view 객체
+public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
+    private String serverURL;
+    private ImageView mapView;
 
-    public ServerMapJSONSearch(ImageView img){
-        this.mapImgView = img;
+
+    public ServerMapJSONSearch(ImageView mapView, String serverURL){
+        this.mapView = mapView;
+        this.serverURL = serverURL;
     }
 
     @Override
-    public Bitmap doInBackground(String... urlString) {
+    protected Bitmap doInBackground(Void... urlString) {
         String stream = null; // json stream 담기
         try{
             System.out.println("ServerMapJSONSearch() -- connection start");
-            URL url = new URL(urlString[0]);
+            URL url = new URL(this.serverURL);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             // Check the connection status
             if(urlConnection.getResponseCode() == 200)
@@ -66,6 +70,8 @@ public class ServerMapJSONSearch extends AsyncTask<String, String, Bitmap> {
 
     }
 
+
+
     private String processJSON(String stream) {
         JSONParser jsonData = new JSONParser(stream); // JSON객체로 만든다
         return jsonData.findMapURL();
@@ -75,6 +81,7 @@ public class ServerMapJSONSearch extends AsyncTask<String, String, Bitmap> {
         Bitmap bitmap = null;
         try {
             String url = Constants.SERVER_URL + mapURL;
+            System.out.println("ServerMapJSONSearch() -- map url : " + url);
             InputStream is = new java.net.URL(url).openStream();
             // InputStream에서 Drawable 작성
             bitmap = BitmapFactory.decodeStream(is);
@@ -86,7 +93,9 @@ public class ServerMapJSONSearch extends AsyncTask<String, String, Bitmap> {
 
     // doInBackground() 메서드의 수행이 모두 완료되면,
     // doInBackground() 메서드의 리턴값이 여기의 파라미터로 반환된다
-    public void onPostExecute(Bitmap map) {
-        this.mapImgView.setImageBitmap(map);
+    @Override
+    protected void onPostExecute(Bitmap map) {
+        mapView.setImageBitmap(map);
+        System.out.println("ServerMapJSONSearch() -- onPostExecute ::::: SUCCESS");
     }
 }

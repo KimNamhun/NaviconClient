@@ -4,6 +4,7 @@ package navicon.mju.kr.ac.naviconclientv01.constants;
 
 /**
  * Created by KimNamhun on 15. 11. 12..
+ * 프로그램에 이용되는 주요 상수에 대해 정의 되어 있다.
  */
 public abstract class Constants {
     public static final int REQUEST_ENABLE_BT = 1000; // 블루투스 상수

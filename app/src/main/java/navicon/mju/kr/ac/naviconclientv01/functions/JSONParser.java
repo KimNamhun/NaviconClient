@@ -4,7 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
- * Created by KimNamhun on 15. 11. 13..
+ * Json을 읽어와서 필요한 내용을 얻을때 쓰는 오퍼레이션이 담긴 클래스이다.
  */
 public class JSONParser {
 
