@@ -7,7 +7,7 @@ public class MapBeacon { // 지도 비콘을 관리한다.
     private int shortestBeacon;
 
     public MapBeacon() {
-        this.shortestBeacon = 00;
+        this.shortestBeacon = 0;
     }
 
     public int getShortestBeacon() {

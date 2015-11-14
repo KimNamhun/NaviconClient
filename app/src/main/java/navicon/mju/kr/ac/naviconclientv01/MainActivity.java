@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -16,7 +15,6 @@ import com.wizturn.sdk.peripheral.PeripheralScanListener;
 
 import navicon.mju.kr.ac.naviconclientv01.beacons.MapBeacon;
 import navicon.mju.kr.ac.naviconclientv01.constants.Constants;
-import navicon.mju.kr.ac.naviconclientv01.functions.JSONParser;
 import navicon.mju.kr.ac.naviconclientv01.servercommunication.ServerMapJSONSearch;
 
 

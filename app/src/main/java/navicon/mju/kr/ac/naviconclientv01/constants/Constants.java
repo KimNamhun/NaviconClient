@@ -1,7 +1,6 @@
 package navicon.mju.kr.ac.naviconclientv01.constants;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
+
 
 /**
  * Created by KimNamhun on 15. 11. 12..
