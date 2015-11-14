@@ -29,27 +29,25 @@ import navicon.mju.kr.ac.naviconclientv01.functions.JSONParser;
 /**
  * Created by KimNamhun on 15. 11. 12..
  */
-public class ServerMapJSONSearch extends AsyncTask<String, String, String> {
-    static String stream = null;
-    private JSONParser jsonData; // json 관리
-    private ImageView mapImgView;
+public class ServerMapJSONSearch extends AsyncTask<String, String, Bitmap> {
+    private ImageView mapImgView; // 지도 view 객체
+    JSONParser jsonData; // json 관리
 
     public ServerMapJSONSearch(ImageView img){
         this.mapImgView = img;
     }
 
     @Override
-    protected String doInBackground(String... urlString) {
-        System.out.println("BackgroundService URL : " + urlString[0]);
+    public Bitmap doInBackground(String... urlString) {
+        String stream = null; // json stream 담기
         try{
-            System.out.println("connection start");
+            System.out.println("ServerMapJSONSearch() -- connection start");
             URL url = new URL(urlString[0]);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-            System.out.println("connection response" + urlConnection.getResponseCode());
             // Check the connection status
             if(urlConnection.getResponseCode() == 200)
             {
-                System.out.println("200OK");
+                System.out.println("ServerMapJSONSearch() -- connection ok");
                 // if response code = 200 ok
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
 
@@ -68,7 +66,7 @@ public class ServerMapJSONSearch extends AsyncTask<String, String, String> {
             }
             else
             {
-                // Do something
+                System.out.println("ServerMapJSONSearch() -- connection fail ::::: ERROR");
             }
         }catch (MalformedURLException e){
             e.printStackTrace();
@@ -77,36 +75,25 @@ public class ServerMapJSONSearch extends AsyncTask<String, String, String> {
         }finally {
 
         }
+        String mapURL = processJSON(stream);
+        Bitmap bitmap = loadingMapImage(mapURL);
 
-        System.out.println("JSON Object String : " + stream);
-        // Return the data from specified url
-
-        Constants.JSON_CURRENT_DATA = stream;
-        Constants.MAP_URL = processJSON();
-        loadingMapImage();
-
-
-
-
-        return stream;
+        return bitmap;
     }
-    private String processJSON() {
-        jsonData = new JSONParser(Constants.JSON_CURRENT_DATA); // JSON객체로 만든다
+
+    private String processJSON(String stream) {
+        jsonData = new JSONParser(stream); // JSON객체로 만든다
         return jsonData.findMapURL();
     }
 
-    private void loadingMapImage() {
+    private Bitmap loadingMapImage(String mapURL) {
         InputStream is=null;
-        Bitmap bitmap;
+        Bitmap bitmap = null;
         try {
-            String url = Constants.SERVER_URL + Constants.MAP_URL;
-            System.out.println("MAP URL : " + url);
+            String url = Constants.SERVER_URL + mapURL;
             is = new java.net.URL(url).openStream();
             // InputStream에서 Drawable 작성
             bitmap = BitmapFactory.decodeStream(is);
-            System.out.println("BitmapObject : " + bitmap);
-            this.mapImgView.setImageBitmap(bitmap);
-
         } catch(Exception e) {
             e.printStackTrace();
         } finally {
@@ -116,7 +103,12 @@ public class ServerMapJSONSearch extends AsyncTask<String, String, String> {
                 e.printStackTrace();
             }
         }
+        return bitmap;
     }
 
-
+    // doInBackground() 메서드의 수행이 모두 완료되면,
+    // doInBackground() 메서드의 리턴값이 여기의 파라미터로 반환된다
+    public void onPostExecute(Bitmap map) {
+        this.mapImgView.setImageBitmap(map);
+    }
 }

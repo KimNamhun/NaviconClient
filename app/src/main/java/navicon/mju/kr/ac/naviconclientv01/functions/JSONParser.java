@@ -20,7 +20,6 @@ public class JSONParser {
 
     public String findMapURL() { // JSON DATA에서 지도 URL을 반환한다.
         try {
-            System.out.println("JSONObject Data : " + json);
             return json.getString("map");
         } catch (JSONException e) {
             e.printStackTrace();
