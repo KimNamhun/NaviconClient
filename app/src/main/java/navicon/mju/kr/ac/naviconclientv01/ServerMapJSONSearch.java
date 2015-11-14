@@ -33,7 +33,6 @@ public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
 
     @Override
     protected Bitmap doInBackground(Void... urlString) {
-        String stream = null; // json stream 담기
         try{
             System.out.println("ServerMapJSONSearch() -- connection start");
             URL url = new URL(this.serverURL);
@@ -52,11 +51,14 @@ public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
                 while ((line = r.readLine()) != null) {
                     sb.append(line);
                 }
-                stream = sb.toString();
+                String stream = sb.toString();
                 // End reading...............
 
                 // Disconnect the HttpURLConnection
                 urlConnection.disconnect();
+                String mapURL = processJSON(stream);
+                return loadingMapImage(mapURL);
+
             }
             else
             {
@@ -65,9 +67,9 @@ public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
         }catch(IOException e){
             e.printStackTrace();
         }
-        String mapURL = processJSON(stream);
-        return loadingMapImage(mapURL);
 
+
+        return null; // 서버와 연결이 안될때 이미지 줄수 있음
     }
 
 
