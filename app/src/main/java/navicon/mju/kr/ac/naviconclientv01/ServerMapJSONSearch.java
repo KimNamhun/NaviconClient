@@ -3,8 +3,8 @@ package navicon.mju.kr.ac.naviconclientv01;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
+
 import android.os.AsyncTask;
-import android.widget.ImageView;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -13,7 +13,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
+import navicon.mju.kr.ac.naviconclientv01.beacons.MapBeaconInfo;
 import navicon.mju.kr.ac.naviconclientv01.constants.Constants;
 import navicon.mju.kr.ac.naviconclientv01.functions.JSONParser;
 
@@ -22,13 +24,15 @@ import navicon.mju.kr.ac.naviconclientv01.functions.JSONParser;
  * 서버에서 Json객체를 얻어오고 화면에 지도를 갱신하는 백그라운드 AsyncTask이다.
  */
 public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
-    private String serverURL;
-    private ImageView mapView;
+    private String serverURL; // 비콘 서버의 주소 정보
+    private ArrayList<MapBeaconInfo> beaconList; // 비콘 리스트
 
-
-    public ServerMapJSONSearch(ImageView mapView, String serverURL){
-        this.mapView = mapView;
+    public ServerMapJSONSearch(String serverURL){
         this.serverURL = serverURL;
+    }
+
+    public ArrayList<MapBeaconInfo> getBeaconList() {
+        return beaconList;
     }
 
     @Override
@@ -76,6 +80,7 @@ public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
 
     private String processJSON(String stream) {
         JSONParser jsonData = new JSONParser(stream); // JSON객체로 만든다
+        beaconList = jsonData.findBeaconList();
         return jsonData.findMapURL();
     }
 
@@ -97,7 +102,6 @@ public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
     // doInBackground() 메서드의 리턴값이 여기의 파라미터로 반환된다
     @Override
     protected void onPostExecute(Bitmap map) {
-        mapView.setImageBitmap(map);
         System.out.println("ServerMapJSONSearch() -- onPostExecute ::::: SUCCESS");
     }
 }
