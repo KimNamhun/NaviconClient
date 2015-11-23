@@ -29,10 +29,15 @@ public class MapViews extends View {
     }
 
     protected void onDraw(Canvas canvas) {
+        double initXYValue[] = new double[2]; // xy변경전 값을 가지고 있는다
+
         System.out.println("MapViews() -- mapView start ::::: SUCCESS");
 
         double adjustedValue[] ={}; // 변화된 가로세로 값
         if(map!=null) {
+
+            initXYValue[0] = map.getWidth();
+            initXYValue[1] = map.getHeight();
             adjustedValue = adjustValue(map.getWidth(), map.getHeight()); // 가로세로길이를 화면에 맞춰 변화시킨 값을 셋팅한다
             map = Bitmap.createScaledBitmap(map, (int) adjustedValue[0], (int) adjustedValue[1], false); // 지도를 변경 크기로 셋팅한다.
             canvas.drawBitmap(map, 0, 0, mPaint); // 지도를 그린다.
@@ -45,9 +50,9 @@ public class MapViews extends View {
 
             for (int i = 0; i < beaconList.size(); i++) {
                 Canvas offScreen = new Canvas(map); // 캔버스위에 그릴수 있게 준비
-                double adjustedWidthRate = adjustedValue[0] / map.getWidth();  // 변화된 가로 비율
-                double adjustedHeightRate = adjustedValue[1] / map.getHeight(); // 변화된 세로 비율
-                offScreen.drawCircle((float) (beaconList.get(i).getX() + Constants.CIRCLE_RADIUS + beaconList.get(i).getX() * adjustedWidthRate), (float) (beaconList.get(i).getY() + Constants.CIRCLE_RADIUS + beaconList.get(i).getY() * adjustedHeightRate), Constants.CIRCLE_RADIUS, mPaint);
+                double adjustedWidthRate = adjustedValue[0] / initXYValue[0];  // 변화된 가로 비율
+                double adjustedHeightRate = adjustedValue[1] / initXYValue[1]; // 변화된 세로 비율
+                offScreen.drawCircle((float) (Constants.CIRCLE_RADIUS + beaconList.get(i).getX() * adjustedWidthRate), (float) (Constants.CIRCLE_RADIUS + beaconList.get(i).getY() * adjustedHeightRate), Constants.CIRCLE_RADIUS, mPaint);
 
             }
 

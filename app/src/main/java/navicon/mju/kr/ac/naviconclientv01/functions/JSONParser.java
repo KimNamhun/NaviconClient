@@ -34,7 +34,7 @@ public class JSONParser {
     }
 
     public ArrayList<MapBeaconInfo> findBeaconList() { // json에서 비콘리스트를 찾아 (x,y) 좌표 위치를 리스트로 반환한다
-        ArrayList<MapBeaconInfo> beaconList = new ArrayList();
+        ArrayList<MapBeaconInfo> beaconList = new ArrayList<>();
         try {
             JSONArray arrResults = json.getJSONArray("beaconList");
             int iCount = arrResults.length();
