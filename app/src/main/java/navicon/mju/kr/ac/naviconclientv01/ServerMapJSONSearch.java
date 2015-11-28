@@ -15,9 +15,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
+import navicon.mju.kr.ac.naviconclientv01.Structures.StructuresInfo;
 import navicon.mju.kr.ac.naviconclientv01.beacons.MapBeaconInfo;
 import navicon.mju.kr.ac.naviconclientv01.constants.Constants;
 import navicon.mju.kr.ac.naviconclientv01.functions.JSONParser;
+import navicon.mju.kr.ac.naviconclientv01.rooms.Rooms;
 
 /**
  * Created by KimNamhun on 15. 11. 12..
@@ -26,6 +28,8 @@ import navicon.mju.kr.ac.naviconclientv01.functions.JSONParser;
 public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
     private String serverURL; // 비콘 서버의 주소 정보
     private ArrayList<MapBeaconInfo> beaconList; // 비콘 리스트
+    private ArrayList<StructuresInfo> structuresList; // 구조물 리스트
+    private ArrayList<Rooms> roomsList; // 호실 리스트
 
     public ServerMapJSONSearch(String serverURL){
         this.serverURL = serverURL;
@@ -33,6 +37,14 @@ public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
 
     public ArrayList<MapBeaconInfo> getBeaconList() {
         return beaconList;
+    }
+
+    public ArrayList<StructuresInfo> getStructuresList() {
+        return structuresList;
+    }
+
+    public ArrayList<Rooms> getRoomsList() {
+        return roomsList;
     }
 
     @Override
@@ -81,6 +93,8 @@ public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
     private String processJSON(String stream) {
         JSONParser jsonData = new JSONParser(stream); // JSON객체로 만든다
         beaconList = jsonData.findBeaconList();
+        structuresList = jsonData.findStructureList();
+        roomsList = jsonData.findRoomList();
         return jsonData.findMapURL();
     }
 
@@ -104,4 +118,6 @@ public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
     protected void onPostExecute(Bitmap map) {
         System.out.println("ServerMapJSONSearch() -- onPostExecute ::::: SUCCESS");
     }
+
+
 }
