@@ -15,6 +15,7 @@ import com.wizturn.sdk.peripheral.PeripheralScanListener;
 
 import java.util.concurrent.ExecutionException;
 
+import navicon.mju.kr.ac.naviconclientv01.beacons.BeaconAnimation;
 import navicon.mju.kr.ac.naviconclientv01.beacons.MapBeacon;
 import navicon.mju.kr.ac.naviconclientv01.constants.Constants;
 
@@ -34,6 +35,13 @@ public class MainActivity extends Activity {
     private EditText findDestinationEditText; // EditText 표현 부분
 
     private int destinationBeacon = 0; // 입력받은 목적지 비콘
+
+    private BeaconAnimation beaconAnimation; // 비콘 애니메이션 관리 변수
+
+    @Override
+    public void onBackPressed() {
+        System.exit(0);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +93,7 @@ public class MainActivity extends Activity {
         if (peripheral.getDistance() < Constants.SHORTEST_BEACON_DISTANCE) { // 지정한 거리내에 들어오는 비콘을 최단거리 비콘 major(위치번호)로 설정한다
             if (mapBeacon.getShortestBeacon() != peripheral.getMajor()) { // 현재 위치의 지도와 새로 만난 지도가 다르면 지도를 갱신한다.
 
+                beaconAnimation = new BeaconAnimation();//비콘 애니메이션 변화
                 System.out.println("MainActivity() -- ChangeMajor ::::: SUCCESS");
                 mapBeacon.setShortestBeacon(peripheral.getMajor());
                 ServerMapJSONSearch serverHttpManager = new ServerMapJSONSearch(Constants.SERVER_URL + Constants.SERVER_MAPDATA_URL + mapBeacon.getShortestBeacon());
@@ -108,15 +117,17 @@ public class MainActivity extends Activity {
 
         if (peripheral.getDistance() < Constants.SHORTEST_CURRENT_BEACON_DISTANCE) {
 
-            if (peripheral.getMinor() != mapBeacon.getCurrentShortestBeacon() || destinationBeacon != mapBeacon.getCurrentDestinationBeacon()) {
+          //  if (peripheral.getMinor() != mapBeacon.getCurrentShortestBeacon() || destinationBeacon != mapBeacon.getCurrentDestinationBeacon()) {
                     System.out.println("MainActivity() -- ChangeBeacon ::::: SUCCESS");
-                    mapBeacon.setCurrentShortestBeacon(peripheral.getMinor());
-                    mapBeacon.setCurrentDestinationBeacon(destinationBeacon);
-
+                   // mapBeacon.setCurrentShortestBeacon(peripheral.getMinor());
+                   // mapBeacon.setCurrentDestinationBeacon(destinationBeacon);
+                    beaconAnimation.plusBeaconAnmationCount();
+                    beaconAnimation.plusCurrentPinSize();
+                    mapView.setBeaconAnimation(beaconAnimation);
                     mapView.setCurrentBeacon(peripheral.getMinor());
                     mapView.setCurrentDestinationBeacon(destinationBeacon);
                     mapView.invalidate(); // 화면 다시 그림
-                }
+             //   }
 
             }
         }

@@ -11,6 +11,7 @@ import android.view.View;
 import java.util.ArrayList;
 
 import navicon.mju.kr.ac.naviconclientv01.Structures.StructuresInfo;
+import navicon.mju.kr.ac.naviconclientv01.beacons.BeaconAnimation;
 import navicon.mju.kr.ac.naviconclientv01.beacons.MapBeaconInfo;
 import navicon.mju.kr.ac.naviconclientv01.constants.Constants;
 import navicon.mju.kr.ac.naviconclientv01.rooms.Rooms;
@@ -35,6 +36,8 @@ public class MapViews extends View {
     private double adjustedValue[] = { }; // 변화된 가로세로 값
     private double initXYValue[] = new double[2]; // xy변경전 값을 가지고 있는다
 
+    private BeaconAnimation beaconAnimation;
+
     public MapViews(Context context, Bitmap bitmap, ArrayList<StructuresInfo> structuresList, ArrayList<Rooms> roomsList, ArrayList<MapBeaconInfo> beaconList) {
         super(context);
         this.map = bitmap;// 받아온 비트맵 표시
@@ -53,7 +56,12 @@ public class MapViews extends View {
         this.currentDestinationBeacon = currentDestinationBeacon;
     }
 
+    public void setBeaconAnimation(BeaconAnimation beaconAnimation) {
+        this.beaconAnimation = beaconAnimation;
+    }
+
     protected void onDraw(Canvas canvas) {
+
         if(mapState == 0) {
             System.out.println("MapViews() -- mapView start ::::: SUCCESS");
             if (map != null) {
@@ -101,10 +109,10 @@ public class MapViews extends View {
                 Canvas offScreen = new Canvas(newMap);
 
                 Bitmap image = BitmapFactory.decodeResource(getResources(), R.drawable.pin);
-                image = createScaledBitmap(image, Constants.CURRENT_PIN_SIZE, Constants.CURRENT_PIN_SIZE, false);
+                image = createScaledBitmap(image, beaconAnimation.getCurrentPinSize() , beaconAnimation.getCurrentPinSize(), false);
 
-                Bitmap image2 = BitmapFactory.decodeResource(getResources(), R.drawable.destination);
-                image2 = createScaledBitmap(image2, Constants.CURRENT_PIN_SIZE, Constants.CURRENT_PIN_SIZE, false);
+                Bitmap image2 = BitmapFactory.decodeResource(getResources(), R.drawable.destination); // 목적지
+                image2 = createScaledBitmap(image2, Constants.DESTINATION_SIZE, Constants.DESTINATION_SIZE, false);
                 System.out.println("MapViews() -- this.currentBeacon = " + this.currentBeacon);
 
                 for (int i = 0; i < beaconList.size(); i++) { // 현재 비콘 위치 그리기
@@ -113,7 +121,7 @@ public class MapViews extends View {
                         offScreen.drawBitmap(image, (int) (beaconList.get(i).getX() * newMap.getWidth() / initXYValue[0]), (int) (beaconList.get(i).getY() * newMap.getHeight() / initXYValue[1]), mPaint);
                         System.out.println("MapViews() -- pinWidth : " + beaconList.get(i).getX() * newMap.getWidth() / initXYValue[0]);
                         System.out.println("MapViews() -- pinHeight : " + beaconList.get(i).getY() * newMap.getHeight() / initXYValue[1]);
-                        currentBeaconX = beaconList.get(i).getX()*  newMap.getWidth() / initXYValue[0];
+                        currentBeaconX = beaconList.get(i).getX() * newMap.getWidth() / initXYValue[0];
                         currentBeaconY = beaconList.get(i).getY() * newMap.getHeight() / initXYValue[1];
                     }
                 }
@@ -121,11 +129,16 @@ public class MapViews extends View {
                 for(int i =0; i< roomsList.size(); i++) { // 목적지 까지 그리기
 
                     if (Integer.toString(this.currentDestinationBeacon).equals(roomsList.get(i).getRoomName())) {
-                        offScreen.drawBitmap(image2, (int) ((roomsList.get(i).getLeft() + (roomsList.get(i).getWidth() / 4)) * (newMap.getWidth() / initXYValue[0])), (int) ((roomsList.get(i).getTop() + (roomsList.get(i).getHeight() * 2 / 3)) * (newMap.getHeight() / initXYValue[1])), mPaint);
+                        offScreen.drawBitmap(image2, (int) ((roomsList.get(i).getLeft() + (roomsList.get(i).getWidth() / 4)) * (newMap.getWidth() / initXYValue[0])), (int) ((roomsList.get(i).getTop() + (roomsList.get(i).getHeight() * 2 / 3)) * (newMap.getHeight() / initXYValue[1])) - image2.getHeight(), mPaint);
                         mPaint.setColor(Color.parseColor(Constants.ROAD_COLOR));
                         mPaint.setStrokeWidth(Constants.LINE_WIDTH);
-                        offScreen.drawLine((float)currentBeaconX, (float)currentBeaconY, (float)currentBeaconX, (float)((roomsList.get(i).getTop() + (roomsList.get(i).getHeight() * 2 / 3)) * (newMap.getHeight() / initXYValue[1])), mPaint);
-                        offScreen.drawLine((float)currentBeaconX, ((float)((roomsList.get(i).getTop() + (roomsList.get(i).getHeight() * 2 / 3)) * (newMap.getHeight() / initXYValue[1]))), (float) ((roomsList.get(i).getLeft() + (roomsList.get(i).getWidth() / 4)) * (newMap.getWidth() / initXYValue[0])), (float)((roomsList.get(i).getTop() + (roomsList.get(i).getHeight() * 2 / 3)) * (newMap.getHeight() / initXYValue[1])), mPaint);
+                        if(currentBeaconY < (roomsList.get(i).getTop() + (roomsList.get(i).getHeight() * 2 / 3)) * (newMap.getHeight() / initXYValue[1])) {
+                            offScreen.drawLine((float) currentBeaconX + Constants.CURRENT_PIN_SIZE / 2, (float) currentBeaconY + Constants.CURRENT_PIN_SIZE+Constants.LINE_WIDTH, (float) currentBeaconX + Constants.CURRENT_PIN_SIZE / 2, (float) ((roomsList.get(i).getTop() + (roomsList.get(i).getHeight() * 2 / 3)) * (newMap.getHeight() / initXYValue[1])) + Constants.LINE_WIDTH / 2, mPaint);
+                            offScreen.drawLine((float) currentBeaconX + Constants.CURRENT_PIN_SIZE / 2, ((float) ((roomsList.get(i).getTop() + (roomsList.get(i).getHeight() * 2 / 3)) * (newMap.getHeight() / initXYValue[1]))), (float) ((roomsList.get(i).getLeft() + (roomsList.get(i).getWidth() / 4)) * (newMap.getWidth() / initXYValue[0])) + Constants.CURRENT_PIN_SIZE / 2, (float) ((roomsList.get(i).getTop() + (roomsList.get(i).getHeight() * 2 / 3)) * (newMap.getHeight() / initXYValue[1])), mPaint);
+                        } else {
+                            offScreen.drawLine((float) currentBeaconX + Constants.CURRENT_PIN_SIZE / 2, (float) currentBeaconY - Constants.LINE_WIDTH, (float) currentBeaconX + Constants.CURRENT_PIN_SIZE / 2, (float) ((roomsList.get(i).getTop() + (roomsList.get(i).getHeight() * 2 / 3)) * (newMap.getHeight() / initXYValue[1])) - Constants.LINE_WIDTH / 2, mPaint);
+                            offScreen.drawLine((float) currentBeaconX + Constants.CURRENT_PIN_SIZE / 2, ((float) ((roomsList.get(i).getTop() + (roomsList.get(i).getHeight() * 2 / 3)) * (newMap.getHeight() / initXYValue[1]))), (float) ((roomsList.get(i).getLeft() + (roomsList.get(i).getWidth() / 4)) * (newMap.getWidth() / initXYValue[0])) + Constants.CURRENT_PIN_SIZE / 2, (float) ((roomsList.get(i).getTop() + (roomsList.get(i).getHeight() * 2 / 3)) * (newMap.getHeight() / initXYValue[1])), mPaint);
+                        }
                     } // else로 목적지가 없을때 표시할수 있음
                 }
 

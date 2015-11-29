@@ -5,4 +5,9 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name ="LoadingTheme" parent ="@android:style/Theme.Light.NoTitleBar">
+
+        <item name = "android:windowBackground">@drawable/loading</item>
+    </style>
+
 </resources>
