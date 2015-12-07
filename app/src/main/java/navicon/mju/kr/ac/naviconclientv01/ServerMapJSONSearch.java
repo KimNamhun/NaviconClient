@@ -15,10 +15,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-import navicon.mju.kr.ac.naviconclientv01.Structures.StructuresInfo;
+import navicon.mju.kr.ac.naviconclientv01.structures.StructuresInfo;
 import navicon.mju.kr.ac.naviconclientv01.beacons.MapBeaconInfo;
 import navicon.mju.kr.ac.naviconclientv01.constants.Constants;
 import navicon.mju.kr.ac.naviconclientv01.functions.JSONParser;
+import navicon.mju.kr.ac.naviconclientv01.location.Location;
 import navicon.mju.kr.ac.naviconclientv01.rooms.Rooms;
 
 /**
@@ -30,6 +31,7 @@ public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
     private ArrayList<MapBeaconInfo> beaconList; // 비콘 리스트
     private ArrayList<StructuresInfo> structuresList; // 구조물 리스트
     private ArrayList<Rooms> roomsList; // 호실 리스트
+    private Location location; // 위치 정보
 
     public ServerMapJSONSearch(String serverURL){
         this.serverURL = serverURL;
@@ -47,11 +49,14 @@ public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
         return roomsList;
     }
 
+    public Location getLocation() { return this.location; }
+
     @Override
     protected Bitmap doInBackground(Void... urlString) {
         try{
             System.out.println("ServerMapJSONSearch() -- connection start");
             URL url = new URL(this.serverURL);
+            System.out.println("ServerMapJSONSearch() -- url : " + url);
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             // Check the connection status
             if(urlConnection.getResponseCode() == 200)
@@ -95,6 +100,7 @@ public class ServerMapJSONSearch extends AsyncTask<Void, Void, Bitmap> {
         beaconList = jsonData.findBeaconList();
         structuresList = jsonData.findStructureList();
         roomsList = jsonData.findRoomList();
+        location = jsonData.findLocation();
         return jsonData.findMapURL();
     }
 

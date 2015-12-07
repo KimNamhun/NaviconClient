@@ -1,23 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical"
-    android:background="#FFF">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFF"
+    android:orientation="vertical"
+    android:paddingRight="10dp">
 
-    <RelativeLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+    <RelativeLayout
         android:id="@+id/viewArea"
-        android:layout_below="@+id/findDestinationEditText">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/findDestinationEditText"></RelativeLayout>
 
-
-
-    </RelativeLayout>
-
-    <EditText android:layout_width="match_parent" android:layout_height="wrap_content"
+    <EditText
         android:id="@+id/findDestinationEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:hint="Input Your Destination"
-        android:layout_alignParentStart="true">
+        android:inputType="number"
+        android:windowSoftInputMode="stateHidden"></EditText>
 
-    </EditText>
+    <TextView
+        android:id="@+id/buildingInfoText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/findDestinationEditText"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="10dp"
+        android:focusableInTouchMode="false"
+        android:fontFamily="sans"
+        android:text="No Beacon Signal"
+        android:textIsSelectable="false"
+        android:textSize="20dp"
+        android:textStyle='bold' />
 
+    <ImageView
+        android:id="@+id/scale"
+        android:layout_width="50dp"
+        android:layout_height="5dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/buildingInfoText"
+        android:background="@drawable/scale"
+        android:paddingRight="10dp"></ImageView>
+
+    <TextView
+        android:id="@+id/scaleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/scaleText2"
+        android:layout_alignBottom="@+id/scaleText2"
+        android:layout_alignEnd="@+id/scale"
+        android:text="0"
+        android:textSize="10dp" />
+
+    <TextView
+        android:id="@+id/scaleText2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/scale"
+        android:layout_below="@+id/scale"
+        android:text="0"
+        android:textSize="10dp" />
+
+    <TextView
+        android:id="@+id/remainTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_above="@+id/remainDistance"
+        android:layout_marginLeft="10dp"
+        android:textSize="15dp" />
+
+    <TextView
+        android:id="@+id/remainDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/buildingInfoText"
+        android:layout_marginBottom="50dp"
+        android:textSize="15dp" />
+
+    <ImageView
+        android:id="@+id/toilet_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="50dp"
+        android:layout_toStartOf="@+id/scaleText"
+        android:background="@drawable/toiletbutton" />
+
+    <ImageView
+        android:id="@+id/exit_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_above="@+id/toilet_button"
+        android:layout_alignStart="@+id/toilet_button"
+        android:background="@drawable/exitbutton" />
 
 
 </RelativeLayout>

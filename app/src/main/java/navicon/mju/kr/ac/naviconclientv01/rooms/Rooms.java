@@ -10,14 +10,18 @@ public class Rooms {
     private int left = 0;
     private int width = 0;
     private int height = 0;
+    private String info = "";
 
-    public Rooms(String roomName, int top, int left, int width, int height) {
+    public Rooms(String roomName, int top, int left, int width, int height, String info) {
         setRoomName(roomName);
         setTop(top);
         setLeft(left);
         setWidth(width);
         setHeight(height);
+        setInfo(info);
     }
+
+
 
     public String getRoomName() {
         return roomName;
@@ -57,5 +61,13 @@ public class Rooms {
 
     public void setHeight(int height) {
         this.height = height;
+    }
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
     }
 }

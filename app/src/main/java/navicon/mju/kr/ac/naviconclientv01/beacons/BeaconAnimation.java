@@ -12,13 +12,11 @@ public class BeaconAnimation {
     private int beaconPlusMinusSwitch;
 
 
-
 public BeaconAnimation() {
     beaconAnmationCount = 0;
     currentPinSize = Constants.CURRENT_PIN_SIZE;
     beaconPlusMinusSwitch = 0;
 }
-
 
     public void plusBeaconAnmationCount() {
         if(this.beaconAnmationCount > Constants.PIN_CHANGE_COUNT) {

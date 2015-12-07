@@ -24,4 +24,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:22.2.0'
     compile files('libs/wizturn-beacon-sdk-2.1.0.jar')
     compile files('libs/json_simple-1.1.jar')
+    compile files('libs/android.jar')
 }

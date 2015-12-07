@@ -6,8 +6,12 @@ package navicon.mju.kr.ac.naviconclientv01.beacons;
  */
 public class MapBeacon { // 지도 비콘을 관리한다.
     private int shortestBeacon; // 가장 가까운 곳에 있는 비콘의 정보이다.
-    private int currentShortestBeacon = 0; // 현재 읽어진 비콘의 정보이다.
-    private int currentDestinationBeacon = 0; // 현재 목적지 비콘의 정보이다.
+    private int currentDestinationBeacon; // 현재 목적지 비콘의 정보이다.
+
+    public MapBeacon() {
+        this.shortestBeacon = 0;
+        this.currentDestinationBeacon = 0000; // 에딧 변경시 문제점 때문에 0000 지정
+    }
 
     public int getCurrentDestinationBeacon() {
         return currentDestinationBeacon;
@@ -15,18 +19,6 @@ public class MapBeacon { // 지도 비콘을 관리한다.
 
     public void setCurrentDestinationBeacon(int currentDestinationBeacon) {
         this.currentDestinationBeacon = currentDestinationBeacon;
-    }
-
-    public int getCurrentShortestBeacon() {
-        return currentShortestBeacon;
-    }
-
-    public void setCurrentShortestBeacon(int currentShortestBeacon) {
-        this.currentShortestBeacon = currentShortestBeacon;
-    }
-
-    public MapBeacon() {
-        this.shortestBeacon = 0;
     }
 
     public int getShortestBeacon() {

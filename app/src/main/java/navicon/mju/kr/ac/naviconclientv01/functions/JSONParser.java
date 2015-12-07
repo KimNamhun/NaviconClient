@@ -6,8 +6,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-import navicon.mju.kr.ac.naviconclientv01.Structures.StructuresInfo;
+import navicon.mju.kr.ac.naviconclientv01.structures.StructuresInfo;
 import navicon.mju.kr.ac.naviconclientv01.beacons.MapBeaconInfo;
+import navicon.mju.kr.ac.naviconclientv01.location.Location;
 import navicon.mju.kr.ac.naviconclientv01.rooms.Rooms;
 
 /**
@@ -43,9 +44,6 @@ public class JSONParser {
             for(int i=0; i<iCount; ++i)
             {
                 JSONObject beaconItem = arrResults.getJSONObject(i);
-                System.out.println("JSONParser() -- findBeaconList() count : " + iCount);
-                System.out.println("JSONParser() -- findBeaconList() x : " + beaconItem.getInt("x"));
-                System.out.println("JSONParser() -- findBeaconList() y : " + beaconItem.getInt("y"));
                 beaconList.add(i,new MapBeaconInfo(beaconItem.getString("beaconId"), beaconItem.getInt("x"), beaconItem.getInt("y")));
             }
         } catch (JSONException e) {
@@ -75,6 +73,8 @@ public class JSONParser {
     }
 
     public ArrayList<Rooms> findRoomList() { // json에서 비콘리스트를 찾아 (x,y) 좌표 위치를 리스트로 반환한다
+        System.out.println("JSONParser() -- findRoomList");
+
         ArrayList<Rooms> roomsList = new ArrayList<>();
         try {
             JSONArray arrResults = json.getJSONArray("roomList");
@@ -82,7 +82,7 @@ public class JSONParser {
             for(int i=0; i<iCount; ++i)
             {
                 JSONObject beaconItem = arrResults.getJSONObject(i);
-                roomsList.add(i,new Rooms(beaconItem.getString("roomName"), beaconItem.getInt("top"), beaconItem.getInt("left"), beaconItem.getInt("width"), beaconItem.getInt("height")));
+                roomsList.add(i,new Rooms(beaconItem.getString("roomName"), beaconItem.getInt("top"), beaconItem.getInt("left"), beaconItem.getInt("width"), beaconItem.getInt("height"), beaconItem.getString("info")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -90,6 +90,19 @@ public class JSONParser {
 
 
         return roomsList;
+    }
+
+    public Location findLocation() {
+        System.out.println("JSONParser() -- findLocation");
+        Location location = null;
+        try {
+            JSONObject locationResults = json.getJSONObject("location");
+            location = new Location(locationResults.getString("floorName"), locationResults.getString("buildingName"), locationResults.getString("groupName"), locationResults.getInt("scale"), locationResults.getString("buildingPhoto"), locationResults.getString("buildingInfo"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return location;
     }
 
 
