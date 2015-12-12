@@ -54,6 +54,7 @@ public class MainActivity extends Activity {
     private TextView remainTime; // 남은 시간
     private ImageView toilet_button; // 화장실 찾기 버튼
     private ImageView exit_button; // 출구 찾기 버튼
+    private ImageView directionView; // 방향 뷰
 
     private int destinationBeacon = 0; // 입력받은 목적지 비콘
 
@@ -91,6 +92,7 @@ public class MainActivity extends Activity {
         toilet_button = (ImageView)findViewById(R.id.toilet_button);
         exit_button = (ImageView)findViewById(R.id.exit_button);
         eventManager = new EventManager();
+        directionView = (ImageView) findViewById(R.id.directionView);
     }
 
     private void addListener() { // 개체에 대해 이벤트를 단다.
@@ -150,14 +152,20 @@ public class MainActivity extends Activity {
     }
     private void findShortestBeacon(Peripheral peripheral, MapBeacon mapBeacon) {
 
-        if (peripheral.getDistance() < Constants.SHORTEST_CURRENT_BEACON_DISTANCE) { // 지정한 거리내에 들어오는 비콘을 최단거리 비콘 major(위치번호)로 설정한다
+        if (peripheral.getDistance() < Constants.SHORTEST_FIRST_BEACON_DISTANCE) { // 지정한 거리내에 들어오는 비콘을 최단거리 비콘 major(위치번호)로 설정한다
             if (mapBeacon.getShortestBeacon() != peripheral.getMajor()) { // 현재 위치의 지도와 새로 만난 지도가 다르면 지도를 갱신한다.
                 System.out.println("MainActivity() -- ChangeMajor ::::: SUCCESS");
                 mapBeacon.setShortestBeacon(peripheral.getMajor());
                 ServerMapJSONSearch serverHttpManager = new ServerMapJSONSearch(Constants.SERVER_URL + Constants.SERVER_MAPDATA_URL + mapBeacon.getShortestBeacon());
                 try {
-                    mapView = new MapViews(MainActivity.this, serverHttpManager.execute().get(), serverHttpManager.getStructuresList(), serverHttpManager.getRoomsList(), serverHttpManager.getBeaconList(), serverHttpManager.getLocation(), buildingInfoText, scaleText, remainDistance, remainTime, scale, findDestinationEditText);
+                    mapView = new MapViews(MainActivity.this, serverHttpManager.execute().get(), serverHttpManager.getStructuresList(), serverHttpManager.getRoomsList(), serverHttpManager.getBeaconList(), serverHttpManager.getLocation(), buildingInfoText, scaleText, remainDistance, remainTime, scale, findDestinationEditText, directionView);
                     viewArea.addView(mapView);
+                    if(destinationBeacon!= 0) {
+                        mapBeacon.setCurrentDestinationBeacon(destinationBeacon); // 현재 목적지가 바뀜을 셋팅한다.
+                        mapView.setCurrentDestinationBeacon(destinationBeacon); // 맵뷰에 목적지 비콘을 넘긴다.
+
+                        mapView.showLoadingDialog(); // 로딩기능
+                    }
                 } catch (InterruptedException | ExecutionException e) {
                     e.printStackTrace();
                 }
@@ -192,10 +200,11 @@ public class MainActivity extends Activity {
                 int smallBeaconMinor = checkLocation(peripheral); // 비콘 수신 신호 최적화 알고리즘!
                 if (mapView != null && smallBeaconMinor != 0) {
                     mapView.setCurrentBeacon(smallBeaconMinor);
+                    mapView.invalidate(); // 화면 다시 그림
 
                 }
-                if (mapView != null)
-                    mapView.invalidate(); // 화면 다시 그림
+
+
 
             }
         }

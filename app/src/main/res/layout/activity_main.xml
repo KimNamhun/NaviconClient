@@ -99,5 +99,12 @@
         android:layout_alignStart="@+id/toilet_button"
         android:background="@drawable/exitbutton" />
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/directionView"
+        android:layout_below="@+id/scaleText2"
+        android:layout_alignEnd="@+id/exit_button" />
+
 
 </RelativeLayout>

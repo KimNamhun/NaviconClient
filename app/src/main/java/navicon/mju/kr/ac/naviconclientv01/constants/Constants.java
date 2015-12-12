@@ -9,10 +9,11 @@ import android.graphics.Color;
  */
 public abstract class Constants {
     public static final int REQUEST_ENABLE_BT = 1000; // 블루투스 상수
-    public static final float SHORTEST_CURRENT_BEACON_DISTANCE=10.0f; //현재 위치 탐색을 위한 비콘 거리
+    public static final float SHORTEST_CURRENT_BEACON_DISTANCE=15.0f; //현재 위치 탐색을 위한 비콘 거리
+    public static final float SHORTEST_FIRST_BEACON_DISTANCE = 2.0f;
     public static final int STRUCTURE_SIZE = 50; // 구조물 크기
     public static final float ROOM_TEXTSIZE = 20.0f; // 룸 텍스트 사이즈
-    public static final int CURRENT_PIN_SIZE = 30; // 현재 위치 핀 사이즈
+    public static final int CURRENT_PIN_SIZE = 25; // 현재 위치 핀 사이즈
     public static final int DESTINATION_SIZE = 60; // 목적지 사이즈
     public static final float LINE_WIDTH = 7.5f; // 길찾기 라인 두께
     public static final String ROAD_COLOR="#3F9BFE"; // 길 색깔 (하늘계열 파랑)

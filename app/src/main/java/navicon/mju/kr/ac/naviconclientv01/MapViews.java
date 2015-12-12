@@ -11,6 +11,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Vibrator;
@@ -24,6 +28,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
+import navicon.mju.kr.ac.naviconclientv01.beacons.AnimateBeacon;
 import navicon.mju.kr.ac.naviconclientv01.event.EventManager;
 import navicon.mju.kr.ac.naviconclientv01.structures.StructuresInfo;
 import navicon.mju.kr.ac.naviconclientv01.beacons.BeaconAnimation;
@@ -63,13 +68,24 @@ public class MapViews extends View{
 
     private ImageView scale;
 
+    private ImageView directionView;
+
     private ProgressDialog dialog1; // 로딩 다이얼 로그
 
+    private AnimateBeacon animateBeacon;
 
+
+    // 나침반 변수
+    private SensorManager mSm;
+    private float[] mGravity = null;
+    private float[] mGeoMagnetic = null;
+
+    private String point;
 
     // 자주 쓰는 변수들
     private double adjustedValue[] = {}; // 변화된 가로세로 값
     private double initXYValue[]; // xy변경전 값을 가지고 있는다
+
 
     Handler mHandler = new Handler() { // 로딩시간을 위한 핸들러
         public void handleMessage(Message msg) { // 로딩 캔슬
@@ -79,7 +95,7 @@ public class MapViews extends View{
         }
     };
 
-    public MapViews(Context context, Bitmap bitmap, ArrayList<StructuresInfo> structuresList, ArrayList<Rooms> roomsList, ArrayList<MapBeaconInfo> beaconList, Location location, TextView buildingInfoText, TextView scaleText, TextView remainDistance, TextView remainTime, ImageView scale, EditText findDestinationEditText) {
+    public MapViews(Context context, Bitmap bitmap, ArrayList<StructuresInfo> structuresList, ArrayList<Rooms> roomsList, ArrayList<MapBeaconInfo> beaconList, Location location, TextView buildingInfoText, TextView scaleText, TextView remainDistance, TextView remainTime, ImageView scale, EditText findDestinationEditText, ImageView directionView) {
         super(context);
         this.map = bitmap;// 받아온 비트맵 표시
         mPaint = new Paint(); // 그리기 도구 준비
@@ -94,12 +110,67 @@ public class MapViews extends View{
         this.eventManager = null;
         this.buildingInfoText = buildingInfoText;
         this.findDestinationEditText = findDestinationEditText;
+        this.scale = scale;
         this.scaleText = scaleText;
+        this.directionView = directionView;
         this.remainDistance = remainDistance;
         this.remainTime = remainTime;
         this.initXYValue = new double[2];
-        this.scale = scale;
+        animateBeacon = new AnimateBeacon();
+        mSm = (SensorManager) getContext().getSystemService(Context.SENSOR_SERVICE);
+        mSm.registerListener(mSensorListener, mSm.getDefaultSensor(
+                Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
+        mSm.registerListener(mSensorListener, mSm.getDefaultSensor(
+                Sensor.TYPE_MAGNETIC_FIELD), SensorManager.SENSOR_DELAY_UI);
     }
+
+
+
+    SensorEventListener mSensorListener = new SensorEventListener() {
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
+
+        public void onSensorChanged(SensorEvent event) {
+            switch (event.sensor.getType()) {
+                case Sensor.TYPE_ACCELEROMETER:
+                    mGravity = event.values.clone();
+                    break;
+                case Sensor.TYPE_MAGNETIC_FIELD:
+                    mGeoMagnetic = event.values.clone();
+                    break;
+            }
+
+            // 둘 다 조사되어 있을 때만
+            if (mGravity != null && mGeoMagnetic != null) {
+                float[] R = new float[16];
+                SensorManager.getRotationMatrix(R, null, mGravity, mGeoMagnetic);
+
+                float[] values = new float[3];
+                SensorManager.getOrientation(R, values);
+
+
+                if(Radian2Degree(values[0]) > 20 && Radian2Degree(values[0]) < 100) {
+                    point = "right";
+                } else if(Radian2Degree(values[0]) < 180 && Radian2Degree(values[0]) > 100 || Radian2Degree(values[0])>-180 && Radian2Degree(values[0])<-160) {
+                    point ="down";
+                } else if(Radian2Degree(values[0]) > -160 && Radian2Degree(values[0]) < -80) {
+                    point = "left";
+                } else if(Radian2Degree(values[0]) > -80 && Radian2Degree(values[0]) < 20) {
+                    point = "up";
+                }
+            }
+        }
+    };
+
+    float Radian2Degree(float radian) {
+        return radian * 180 / (float)Math.PI;
+    }
+
+
+
+
+
+
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -217,7 +288,10 @@ public class MapViews extends View{
 
     int count =0; // 지도 바로 읽어들이지 않기 위해
     AlertDialog dialog= createDialogFinish();
+
     protected void onDraw(Canvas canvas) {
+
+
 
         if (map != null) {
             count++;
@@ -257,7 +331,11 @@ public class MapViews extends View{
                             image = BitmapFactory.decodeResource(getResources(), R.drawable.exit);
                         } else if (structuresList.get(i).getType().equals("extinguisher")) {
                             image = BitmapFactory.decodeResource(getResources(), R.drawable.extinguisher);
-                        } else {
+                        } else if (structuresList.get(i).getType().equals("elevator")) {
+                            image = BitmapFactory.decodeResource(getResources(), R.drawable.elevator);
+                        }
+
+                        else {
                             image = BitmapFactory.decodeResource(getResources(), R.drawable.toilet);
 
                         }
@@ -290,6 +368,16 @@ public class MapViews extends View{
 
 
             } else { // 지도가 그려진 상태에서
+                if(point.equals("up")) {
+                    directionView.setImageResource(R.drawable.top);
+                } else if(point.equals("down")) {
+                    directionView.setImageResource(R.drawable.bottom);
+                } else if(point.equals("left")) {
+                    directionView.setImageResource(R.drawable.left);
+                } else if(point.equals("right")) {
+                    directionView.setImageResource(R.drawable.right);
+                }
+
                 if (count == Integer.MAX_VALUE) { // 혹시나 카운트가 다 차면 0으로 만들어준다.
                     count = 0;
                 }
@@ -308,20 +396,20 @@ public class MapViews extends View{
                 image2 = createScaledBitmap(image2, Constants.DESTINATION_SIZE, Constants.DESTINATION_SIZE, false);
 
 
-
-
-                    for (int i = 0; i < beaconList.size(); i++) { // 현재 비콘 위치 그리기
+                for (int i = 0; i < beaconList.size(); i++) { // 현재 비콘 위치 그리기
                         if (Integer.toString(this.currentBeacon).equals(beaconList.get(i).getBeaconId())) { // 현재 받은 비콘의 아이디와 비콘리스트의 아이디가 같으면 현재 비콘 위치 찍어주기
+
 
                             currentBeaconX = beaconList.get(i).getX() * newMap.getWidth() / initXYValue[0];
                             currentBeaconY = beaconList.get(i).getY() * newMap.getHeight() / initXYValue[1];
 
 
-                            offScreen.drawBitmap(image, (int) (beaconList.get(i).getX() * newMap.getWidth() / initXYValue[0]), (int) ((beaconList.get(i).getY() * newMap.getHeight() / initXYValue[1])), mPaint);
-
-
-
-
+                            animateBeacon.setCurrentBeaconX(currentBeaconX);
+                            animateBeacon.setCurrentBeaconY(currentBeaconY);
+                            animateBeacon.setOffScreen(offScreen);
+                            animateBeacon.setImage(image);
+                            animateBeacon.setmPaint(mPaint);
+                            animateBeacon.drawCurrentBeacon();
 
 
                             }
@@ -332,12 +420,19 @@ public class MapViews extends View{
                     this.remainDistance.setText("");
                     this.remainTime.setText("");
 
+                    String [] existsRooms = {"5201", "5202", "5203", "5204", "5207", "5209", "5211", "5215", "5219", "5222", "5225", "5235", "5237", "5240", "5241", "5243", "5244", "5245", "5246", "5247", "5248", "5301", "5307", "5309", "5311", "5313", "5315", "5316", "5334", "5335", "5336", "5337", "5338", "5339", "5342", "5346", "5351"};
+                    boolean check = true;
+
                     for (int i = 0; i < roomsList.size(); i++) { // 목적지 까지 그리기
 
                         double remainTime; // 목적지까지 남은시간
                         double remainDistance = 0; // 목적지까지 남은 거리
 
                         if (Integer.toString(this.currentDestinationBeacon).equals(roomsList.get(i).getRoomName())) {
+                            check = false;
+                            System.out.println("if");
+                            System.out.println(this.currentDestinationBeacon);
+                            System.out.println(roomsList.get(i).getRoomName());
                             float downStraightStartX = (float) currentBeaconX + (float) (Constants.CURRENT_PIN_SIZE / 2);
                             float downVerticalStartX = (float) currentBeaconX + (float) (Constants.CURRENT_PIN_SIZE / 2);
                             float downStraightStartY = (float) currentBeaconY + (float) Constants.CURRENT_PIN_SIZE + Constants.LINE_WIDTH;
@@ -376,11 +471,52 @@ public class MapViews extends View{
 
                             //남은 거리에 따라 도착 알림
                             alarmFinish(remainDistance);
+                            break;
 
 
-                        }// else로 목적지가 없을때 표시할수 있음
+                        } else  {// else로 목적지가 없을때 표시할수 있음
+
+                        }
+                    }
+
+                if(check) {
+                    mPaint.setColor(Color.parseColor(Constants.ROAD_COLOR));
+                    mPaint.setStrokeWidth(Constants.LINE_WIDTH);
+                    System.out.println("else");
+                    System.out.println(this.currentDestinationBeacon);
+                    int elevator = -1;
+                    for(int x=0; x<structuresList.size(); x++) {
+                        if(structuresList.get(x).getType().equals("elevator")) {
+                            elevator = x;
+                        }
 
                     }
+                    if(elevator != -1) {
+
+                        for (int j = 0; j < existsRooms.length; j++) {
+                            System.out.println("elevator");
+                            System.out.println(this.currentDestinationBeacon);
+                            System.out.println(existsRooms[j]);
+                            if (Integer.toString(this.currentDestinationBeacon).equals(existsRooms[j])) {
+                                System.out.println("correct");
+                                if (currentBeaconY < structuresList.get(elevator).getY() * (newMap.getHeight() / initXYValue[1])) { // 아랫방향으로갈때
+                                    offScreen.drawLine((float) currentBeaconX + (float) (Constants.CURRENT_PIN_SIZE / 2), (float) currentBeaconY + (float) Constants.CURRENT_PIN_SIZE + Constants.LINE_WIDTH, (float) (currentBeaconX + Constants.CURRENT_PIN_SIZE / 2), (float) (structuresList.get(elevator).getY() * (newMap.getHeight() / initXYValue[1]) + Constants.LINE_WIDTH / 2), mPaint); // 세로선
+                                    offScreen.drawLine((float) currentBeaconX + (float) (Constants.CURRENT_PIN_SIZE / 2), (float) (structuresList.get(elevator).getY() * (newMap.getHeight() / initXYValue[1])), (float) (structuresList.get(elevator).getX() * (newMap.getWidth() / initXYValue[0]) + (Constants.CURRENT_PIN_SIZE / 2)), (float) (structuresList.get(elevator).getY() * (newMap.getHeight() / initXYValue[1])), mPaint); // 가로선
+
+                                } else {
+                                    offScreen.drawLine((float) currentBeaconX + (float) (Constants.CURRENT_PIN_SIZE / 2), (float) (currentBeaconY - Constants.LINE_WIDTH), (float) (currentBeaconX + Constants.CURRENT_PIN_SIZE / 2), (float) (structuresList.get(elevator).getY() * (newMap.getHeight() / initXYValue[1]) - (Constants.LINE_WIDTH / 2)), mPaint);
+                                    offScreen.drawLine((float) currentBeaconX + (float) (Constants.CURRENT_PIN_SIZE / 2), (float) (structuresList.get(elevator).getY() * (newMap.getHeight() / initXYValue[1])), (float) (structuresList.get(elevator).getX() * (newMap.getWidth() / initXYValue[0]) + (Constants.CURRENT_PIN_SIZE / 2)), (float) (structuresList.get(elevator).getY() * (newMap.getHeight() / initXYValue[1])), mPaint);
+                                }
+                                break;
+
+                            }
+                        }
+                    }
+                    // 현재 위치에서 목적지까지 탐색
+
+                }
+
+
 
 
                     int closestExit = -1;
